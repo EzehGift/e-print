@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\-\\\\Desktop\\\\projects\\\\e-prints\")",
+      "WebFetch(domain:eprints.gouni.edu.ng)",
+      "Bash(npx create-next-app@14 . --typescript --tailwind --app --no-src-dir --import-alias=\"@/*\" --no-git --yes)",
+      "Bash(Get-Content *)",
+      "Read(//c/Users/-/Desktop/projects/**)",
+      "Bash(npx create-next-app@14 gouni-repo-tmp --typescript --tailwind --app --no-src-dir --import-alias=\"@/*\" --no-git --yes)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(del next.config.ts)",
+      "Bash(Remove-Item next.config.ts -ErrorAction SilentlyContinue)",
+      "Bash(npm run *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(findstr \".env\")",
+      "Bash(taskkill *)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Start-Process -FilePath \"npm\" -ArgumentList \"run\", \"dev\" -WorkingDirectory \"C:\\\\Users\\\\-\\\\Desktop\\\\projects\\\\e-prints\" -WindowStyle Hidden; Start-Sleep -Seconds 5; \\(Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 10 -UseBasicParsing\\).StatusCode 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/tailwindcss/package.json'\\).version\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/postcss-load-config/package.json'\\).version\\)\")",
+      "PowerShell(Get-Process *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\-\\\\Desktop\\\\projects\\\\e-prints\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20 FullName)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\-\\\\Desktop\\\\projects\\\\e-prints\" -Recurse -Include \"*.ts\", \"*.tsx\", \"*.js\", \"*.jsx\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "Bash(Get-ChildItem -Recurse -Depth 2)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "PowerShell(head *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\-\\\\Desktop\\\\projects\\\\e-prints\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)"
+    ]
+  }
+}

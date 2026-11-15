@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  RESEARCHER
+  VIEWER
+}
+
+enum ItemType {
+  THESIS
+  ARTICLE
+  BOOK
+  BOOK_CHAPTER
+  CONFERENCE_PAPER
+  REPORT
+  OTHER
+}
+
+enum ItemStatus {
+  DRAFT
+  UNDER_REVIEW
+  PUBLISHED
+  REJECTED
+}
+
+enum DivisionLevel {
+  UNIVERSITY
+  FACULTY
+  DEPARTMENT
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          Role      @default(VIEWER)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  facultyId     String?
+  faculty       Division? @relation("UserFaculty", fields: [facultyId], references: [id])
+
+  items         Item[]    @relation("ItemSubmitter")
+
+  // NextAuth adapter tables
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Division {
+  id       String        @id @default(cuid())
+  name     String
+  code     String        @unique
+  level    DivisionLevel
+  parentId String?
+  parent   Division?     @relation("DivisionHierarchy", fields: [parentId], references: [id])
+  children Division[]    @relation("DivisionHierarchy")
+
+  items    Item[]
+  users    User[]        @relation("UserFaculty")
+}
+
+model Item {
+  id              String     @id @default(cuid())
+  title           String
+  abstract        String     @db.Text
+  type            ItemType
+  status          ItemStatus @default(DRAFT)
+  year            Int
+  language        String     @default("English")
+  doi             String?
+  uri             String     @unique
+  rejectionReason String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  submittedById   String
+  submittedBy     User       @relation("ItemSubmitter", fields: [submittedById], references: [id])
+
+  divisionId      String
+  division        Division   @relation(fields: [divisionId], references: [id])
+
+  authors         ItemAuthor[]
+  subjects        ItemSubject[]
+  keywords        ItemKeyword[]
+  files           File[]
+
+  pendingEdit   Json?
+  pendingEditAt DateTime?
+
+  // search_vector is a generated tsvector column managed via raw SQL migration
+  // It is NOT declared here to avoid Prisma trying to manage it
+}
+
+model Author {
+  id        String       @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  orcid     String?
+
+  items     ItemAuthor[]
+}
+
+model ItemAuthor {
+  itemId   String
+  authorId String
+  order    Int
+
+  item     Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, authorId])
+  @@index([itemId, order])
+}
+
+model Subject {
+  id    String        @id @default(cuid())
+  name  String
+  code  String        @unique
+
+  items ItemSubject[]
+}
+
+model ItemSubject {
+  itemId    String
+  subjectId String
+
+  item      Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, subjectId])
+}
+
+model Keyword {
+  id    String        @id @default(cuid())
+  value String        @unique
+
+  items ItemKeyword[]
+}
+
+model ItemKeyword {
+  itemId    String
+  keywordId String
+
+  item      Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  keyword   Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, keywordId])
+}
+
+model File {
+  id           String   @id @default(cuid())
+  itemId       String
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  isPublic     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  item         Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+// ─── NextAuth adapter tables ──────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
